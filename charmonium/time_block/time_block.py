@@ -54,27 +54,27 @@ class TimeBlock:
     def ctx(
         self,
         name: str,
-        print_extra: str = "",
+        name_extra: str = "",
         print_start: bool = True,
-        print_time: bool = True,
-        run_gc: bool = False,
+        print_stop: bool = True,
+        do_gc: bool = False,
     ) -> Generator[None, None, None]:
         """Measure the time and memory-usage of the wrapped context.
 
-        If `run_gc`, then I will run garbage collection (with a
+        If `do_gc`, then I will run garbage collection (with a
         separate timer). This makes memory usage stats more accurate.
 
         >>> import charmonium.time_block as ch_time_block
         >>> import time
-        >>> with ch_time_block.ctx("main stuff 1"):
+        >>> with ch_time_block.ctx("main stuff 1", do_gc=True): # doctest:+ELLIPSIS
         ...     time.sleep(0.1)
         ...     with ch_time_block.ctx("inner stuff"):
         ...         time.sleep(0.2)
         ...
          > main stuff 1: running
          > main stuff 1 > inner stuff: running
-         > main stuff 1 > inner stuff: 0.2s 0.0b (gc: 0.0s)
-         > main stuff 1: 0.3s 0.0b (gc: 0.0s)
+         > main stuff 1 > inner stuff: 0.2s
+         > main stuff 1: 0.3s ...b (gc: ...s)
 
         """
 
@@ -87,15 +87,10 @@ class TimeBlock:
         stderr_handler.setStream(sys.stdout)
 
         child_logger = logger.getChild(python_sanitize(name))
-        self.data.stack.append(name)
+        self.data.stack.append(name + name_extra)
         qualified_name_str = " > ".join(self.data.stack)
         if print_start:
-            child_logger.debug(
-                "%s: running%s%s",
-                qualified_name_str,
-                " " if print_extra else "",
-                print_extra,
-            )
+            child_logger.debug("%s: running", qualified_name_str)
         exc: Optional[Exception] = None
         process = psutil.Process()
         time_start = datetime.datetime.now()
@@ -107,7 +102,7 @@ class TimeBlock:
         finally:
             time_stop = datetime.datetime.now()
             duration = (time_stop - time_start).total_seconds()
-            if run_gc:
+            if do_gc:
                 gc_start = datetime.datetime.now()
                 gc.collect()
                 gc_end = datetime.datetime.now()
@@ -119,18 +114,16 @@ class TimeBlock:
             with self.lock:
                 self.stats[tuple(self.data.stack[1:])].append((duration, mem_leaked))
             self.data.stack.pop()
-            if print_time:
+            if print_stop:
                 mem_val, mem_unit, _ = mem2str(mem_leaked)
                 child_logger.debug(
-                    "%s: %.1fs %.1f%s (gc: %.1fs)%s%s%s",
+                    "%s: %.1fs%s%s",
                     qualified_name_str,
                     duration,
-                    mem_val,
-                    mem_unit,
-                    gc_duration,
+                    f" {mem_val:.1f}{mem_unit} (gc: {gc_duration:.1f}s)"
+                    if do_gc
+                    else "",
                     " (err)" if exc is not None else "",
-                    " " if print_extra else "",
-                    print_extra,
                 )
         if exc:
             raise exc
@@ -138,9 +131,9 @@ class TimeBlock:
     def decor(
         self,
         print_start: bool = True,
-        print_time: bool = True,
+        print_stop: bool = True,
         print_args: bool = False,
-        run_gc: bool = False,
+        do_gc: bool = False,
     ) -> Callable[[FunctionType], FunctionType]:
         """Measure the time and memory-usage of the wrapped context.
 
@@ -148,7 +141,7 @@ class TimeBlock:
         >>> import time
         >>> @ch_time_block.decor()
         ... def foo():
-        ...     time.sleep(0.3)
+        ...     time.sleep(0.2)
         ...     bar()
         ...
         >>> @ch_time_block.decor()
@@ -159,8 +152,8 @@ class TimeBlock:
         ...
          > foo: running
          > foo > bar: running
-         > foo > bar: 0.1s 0.0b (gc: 0.0s)
-         > foo: 0.4s 0.0b (gc: 0.0s)
+         > foo > bar: 0.1s
+         > foo: 0.3s
 
         """
 
@@ -172,7 +165,9 @@ class TimeBlock:
                         [
                             "(",
                             ", ".join(f"{arg!r}" for arg in args),
-                            ", ".join(f"{key}={val!r}" for key, val in kwargs.items()),
+                            ", ".join(
+                                f"{key}={val!r}" for key, val in sorted(kwargs.items())
+                            ),
                             ")",
                         ]
                     )
@@ -180,10 +175,10 @@ class TimeBlock:
                     arg_str = ""
                 with self.ctx(
                     func.__qualname__,
-                    print_extra=arg_str,
+                    name_extra=arg_str,
                     print_start=print_start,
-                    print_time=print_time,
-                    run_gc=run_gc,
+                    print_stop=print_stop,
+                    do_gc=do_gc,
                 ):
                     return func(*args, **kwargs)
 

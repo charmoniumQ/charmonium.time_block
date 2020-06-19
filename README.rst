@@ -12,10 +12,9 @@ Quickstart
 
     $ pip install charmonium.time_block
 
-Here are some reasons you would use this instead of an external profiler
-(e.g. line_prof) or another internal profiler (e.g. block-timer).
-
-- This records process measures memory usage (relatively cross-platform method using `psutil`_).
+Here are some reasons you would use this instead of an external
+profiler (e.g. line_prof) or another internal profiler
+(e.g. block-timer) for measuring time larger than 0.1s.
 
 .. _`psutil`: https://github.com/giampaolo/psutil
 
@@ -31,24 +30,23 @@ Here are some reasons you would use this instead of an external profiler
     ...
     >>> foo()
      > bar: running
-     > bar: 0.1s 0.0b (gc: 0.0s)
+     > bar: 0.1s
 
 - But it can also easily annotate functions with an equivalent decorator.
 
     >>> import charmonium.time_block as ch_time_block
-    >>>
     >>> # Suppose we don't care how fast foo runs.
     >>> def foo():
     ...     bar()
     ...
     >>>
     >>> @ch_time_block.ctx("bar")
-    >>> def bar():
+    ... def bar():
     ...     time.sleep(0.1)
     ...
     >>> foo()
      > bar: running
-     > bar: 0.1s 0.0b (gc: 0.0s)
+     > bar: 0.1s
 
 - Like function profiling, but unlike other block-profilers, it is
   recurrent, and it maintains a stack.
@@ -72,12 +70,17 @@ Here are some reasons you would use this instead of an external profiler
      > foo: running
      > foo > bar: running
      > foo > bar > baz: running
-     > foo > bar > baz: 0.3s 0.0b (gc: 0.0s)
-     > foo > bar: 0.5s 0.0b (gc: 0.0s)
-     > foo: 0.6s 0.0b (gc: 0.0s)
+     > foo > bar > baz: 0.3s
+     > foo > bar: 0.5s
+     > foo: 0.6s
+
+- This records process measures memory usage (relatively
+  cross-platform method using `psutil`_) when ``do_gc=True``.
 
 
-- This also works for threads (or more usefully `ThreadPoolExecutor`).
+- This also works for threads (or more usefully `ThreadPoolExecutor`_).
+
+.. _`ThreadPoolExecutor`: https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor
 
     >>> import charmonium.time_block as ch_time_block
     >>> import time
@@ -99,17 +102,17 @@ Here are some reasons you would use this instead of an external profiler
     ...
     >>> from threading import Thread
     >>> threads = [Thread(target=foo), Thread(target=bar)]
-    >>> for thread in threads:
+    >>> for thread in threads: # doctest:+SKIP
     ...     thread.start()
     ...
      > foo: running
      > bar: running
      > foo > baz: running
      > bar > baz: running
-     > foo > baz: 0.3s 0.0b (gc: 0.0s)
-     > foo: 0.4s 0.0b (gc: 0.0s)
-     > bar > baz: 0.3s 4.0Kb (gc: 0.0s)
-     > bar: 0.5s 4.0Kb (gc: 0.0s)
+     > foo > baz: 0.3s
+     > foo: 0.4s
+     > bar > baz: 0.3s
+     > bar: 0.5s
     >>> # TODO: get a better example, with named threads
 
 - This is less verbose. You can place annotations only around functions you care
@@ -137,18 +140,21 @@ Here are some reasons you would use this instead of an external profiler
     ...
     >>> foo()
      > bar: running
-     > bar: 0.5s 0.0b (gc: 0.0s)
+     > bar: 0.5s
     >>> # Only reports runtime of bar, and accounts the cost of bar and baz.
 
-- This reports in realtime to logger and (optionally to stderr). This is
-  intended to let the user know what the code is doing right now. E.g.
+- This reports in realtime to `logger`_ (destination customizable). This
+  is intended to let the user know what the code is doing right
+  now. E.g.
 
      > download: running
-     > download: 0.1s 1.2kb (gc: 0.1s)
+     > download: 0.1s
      > decompress: running
-     > decompress: 0.2s 3.4b (gc: 0.3s)
+     > decompress: 0.2s
      > processing: running
-     > processing: 0.4s 3.4b (gc: 0.3s)
+     > processing: 0.4s
+
+.. _`logger`: https://docs.python.org/3.9/library/logging.html
 
 - The results are programatically accessible at runtime. In the dict returned by
   get_stats(), the stack frame (key) is represented as a tuple of strings while
@@ -170,13 +176,16 @@ Here are some reasons you would use this instead of an external profiler
     ...     # suppose we don't care to distinguish the work of bar from the work of baz
     ...     # If we do, just add annotation to baz as well
     ...
-    >>> foo() # doctest:+ELLIPSIS
-    ...
+    >>> foo()
+     > foo: running
+     > foo > bar: running
+     > foo > bar: 0.2s
+     > foo: 0.3s
     >>> ch_time_block.get_stats() # doctest:+SKIP
     {('foo', 'bar'): [(0.200505, 0)], ('foo',): [(0.301857, 0)]}
-    >>> ch_time_block.print_stats()
-    foo                      =  100% of total =  100% of parent = (0.40 +/- 0.00) sec = 4 (0.10 +/- 0.00) sec  (0.0 +/- 0.0) b
-    foo > bar                =  100% of total =   25% of parent = (0.10 +/- 0.00) sec = 4 (0.03 +/- 0.00) sec  (0.0 +/- 0.0) b
+    >>> ch_time_block.print_stats() # doctest:+SKIP
+    foo       =  100% of total =  100% of parent = (0.30 +/- 0.00) sec = 1 (0.30 +/- 0.00) sec  (0.0 +/- 0.0) b
+    foo > bar =  100% of total =   67% of parent = (0.20 +/- 0.00) sec = 1 (0.20 +/- 0.00) sec  (0.0 +/- 0.0) b
 
 - This handles recursion. Handling recursion any other way would break
   evaluating self / parent, because parent could be self.
@@ -184,21 +193,19 @@ Here are some reasons you would use this instead of an external profiler
     >>> import charmonium.time_block as ch_time_block
     >>> import time
     >>>
-    >>> @ch_time_block.decor()
+    >>> @ch_time_block.decor(print_args=True)
     ... def foo(n):
-    ...     if n == 0:
-    ...         return 0
-    ...     else:
+    ...     if n != 0:
     ...         time.sleep(0.1)
     ...         return foo(n - 1)
     ...
     >>> foo(2)
-     > foo: running
-     > foo > foo: running
-     > foo > foo > foo: running
-     > foo > foo > foo: 0.0s 0.0b (gc: 0.0s)
-     > foo > foo: 0.1s 0.0b (gc: 0.0s)
-     > foo: 0.2s 0.0b (gc: 0.0s)
+     > foo(2): running
+     > foo(2) > foo(1): running
+     > foo(2) > foo(1) > foo(0): running
+     > foo(2) > foo(1) > foo(0): 0.0s
+     > foo(2) > foo(1): 0.1s
+     > foo(2): 0.2s
 
 - This does not need source-code access, so it will work from ``.eggs``.
 
