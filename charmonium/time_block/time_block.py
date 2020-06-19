@@ -25,9 +25,6 @@ FunctionType = TypeVar("FunctionType", bound=Callable[..., Any])
 logger = logging.getLogger("charmonium.logger")
 logger.setLevel(logging.DEBUG)
 
-stderr_handler = logging.StreamHandler(sys.stdout)
-stderr_handler.setFormatter(logging.Formatter("%(message)s"))
-
 
 class TimeBlock:
     def __init__(self, root_label: str = "") -> None:
@@ -42,6 +39,8 @@ class TimeBlock:
             Tuple[str, ...], List[Tuple[float, int]]
         ] = collections.defaultdict(list)
         self.logger = logger
+        self.handler = logging.StreamHandler(sys.stdout)
+        self.handler.setFormatter(logging.Formatter("%(message)s"))
 
     def get_stats(self) -> Dict[Tuple[str, ...], List[Tuple[float, int]]]:
         """Gets the stats for a specific function."""
@@ -65,6 +64,7 @@ class TimeBlock:
         separate timer). This makes memory usage stats more accurate.
 
         >>> import charmonium.time_block as ch_time_block
+        >>> ch_time_block._enable_doctest_logging()
         >>> import time
         >>> with ch_time_block.ctx("main stuff 1", do_gc=True): # doctest:+ELLIPSIS
         ...     time.sleep(0.1)
@@ -77,14 +77,6 @@ class TimeBlock:
          > main stuff 1: 0.3s ...b (gc: ...s)
 
         """
-
-        # This line makes doctests work Doctest monkey-patches
-        # sys.stdout when it is invoked But that happens after this
-        # module is loaded (by sphinx) So I need to add it again here.
-        # Logging will still be disabled if disable was called,
-        # because stderr_handler will (still) not be registered as a
-        # handler of logging.
-        stderr_handler.setStream(sys.stdout)
 
         child_logger = logger.getChild(python_sanitize(name))
         self.data.stack.append(name + name_extra)
@@ -138,6 +130,7 @@ class TimeBlock:
         """Measure the time and memory-usage of the wrapped context.
 
         >>> import charmonium.time_block as ch_time_block
+        >>> ch_time_block._enable_doctest_logging()
         >>> import time
         >>> @ch_time_block.decor()
         ... def foo():
@@ -296,10 +289,15 @@ class TimeBlock:
             self.stats.clear()
 
     def enable_stderr(self) -> None:
-        self.logger.addHandler(stderr_handler)
+        self.logger.addHandler(self.handler)
 
     def disable_stderr(self) -> None:
-        self.logger.removeHandler(stderr_handler)
+        self.logger.removeHandler(self.handler)
+
+    def _enable_doctest_logging(self) -> None:
+        # This is hack to make doctests work
+        # It monkypatches sys.stdout, so I have to re-grab it here.
+        self.handler.setStream(sys.stdout)
 
 
 __all__ = ["TimeBlock"]

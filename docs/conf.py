@@ -36,7 +36,6 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.doctest",
 ]
 
 autoapi_dirs = [Path("..") / "charmonium.time_block".split(".")[0]]

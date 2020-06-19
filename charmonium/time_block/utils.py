@@ -36,7 +36,7 @@ def python_sanitize(name: str) -> str:
     >>> # TODO: better as a unittest
     >>> from charmonium.time_block.utils import python_sanitize
     >>> python_sanitize("1hello world")
-    _1hello_world
+    '_1hello_world'
 
     This tries to strike a balance between keeping semantic
     information of the invalid characters while being concise. Due to
@@ -45,14 +45,13 @@ def python_sanitize(name: str) -> str:
 
     >>> from charmonium.time_block.utils import python_sanitize
     >>> python_sanitize("a.b")
-    a_b
+    'a_b'
     >>> python_sanitize("a..b")
-    a_b
+    'a_b'
 
     """
-    name = re.sub(r"[-.,\s]+", "_", name)
-    name = re.sub(r"[^a-zA-Z0-9]", "", name)
-    name = re.sub(r"^[0-9]", "_", name)
+    name = re.sub(r"([^a-zA-Z0-9_]+)", "_", name)
+    name = re.sub(r"^[0-9]", r"_\g<0>", name)
     return name
 
 

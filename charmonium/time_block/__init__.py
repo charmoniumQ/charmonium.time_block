@@ -20,6 +20,7 @@ get_stats = _time_block.get_stats
 format_stats = _time_block.format_stats
 disable_stderr = _time_block.disable_stderr
 enable_stderr = _time_block.enable_stderr
+_enable_doctest_logging = _time_block._enable_doctest_logging
 
 enable_stderr()
 

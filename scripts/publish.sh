@@ -13,5 +13,5 @@ poetry run bump2version "${part}"
 poetry build
 poetry run twine check dist/*
 if [ -z "${dry_run}" ]; then
-	poetry publish --build
+	poetry publish
 fi

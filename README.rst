@@ -22,6 +22,7 @@ profiler (e.g. line_prof) or another internal profiler
   blocks (in a timed-function or not).
 
     >>> import charmonium.time_block as ch_time_block
+    >>> ch_time_block._enable_doctest_logging()
     >>> import time
     >>>
     >>> def foo():
@@ -35,6 +36,7 @@ profiler (e.g. line_prof) or another internal profiler
 - But it can also easily annotate functions with an equivalent decorator.
 
     >>> import charmonium.time_block as ch_time_block
+    >>> ch_time_block._enable_doctest_logging()
     >>> # Suppose we don't care how fast foo runs.
     >>> def foo():
     ...     bar()
@@ -52,6 +54,7 @@ profiler (e.g. line_prof) or another internal profiler
   recurrent, and it maintains a stack.
 
     >>> import charmonium.time_block as ch_time_block
+    >>> ch_time_block._enable_doctest_logging()
     >>> import time
     >>>
     >>> @ch_time_block.decor()
@@ -83,6 +86,7 @@ profiler (e.g. line_prof) or another internal profiler
 .. _`ThreadPoolExecutor`: https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor
 
     >>> import charmonium.time_block as ch_time_block
+    >>> ch_time_block._enable_doctest_logging()
     >>> import time
     >>> from concurrent.futures import ThreadPoolExecutor
     >>>
@@ -119,6 +123,7 @@ profiler (e.g. line_prof) or another internal profiler
   about.
 
     >>> import charmonium.time_block as ch_time_block
+    >>> ch_time_block._enable_doctest_logging()
     >>> import time
     >>>
     >>> # Suppose we don't care how fast foo runs.
@@ -161,6 +166,7 @@ profiler (e.g. line_prof) or another internal profiler
   the profile result (value) is a pair of time and memory used.
 
     >>> import charmonium.time_block as ch_time_block
+    >>> ch_time_block._enable_doctest_logging()
     >>> ch_time_block.clear()
     >>> import time
     >>>
@@ -191,6 +197,7 @@ profiler (e.g. line_prof) or another internal profiler
   evaluating self / parent, because parent could be self.
 
     >>> import charmonium.time_block as ch_time_block
+    >>> ch_time_block._enable_doctest_logging()
     >>> import time
     >>>
     >>> @ch_time_block.decor(print_args=True)
