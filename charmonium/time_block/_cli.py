@@ -1,9 +1,12 @@
 import click
 
-from ._lib import returns_four
-
 
 @click.command()
 def main() -> None:
-    """CLI for charmonium.time_block."""
-    print(returns_four())
+    """Times the given command.
+
+    TODO: consider ways of making this fancier.
+      - Print memory usage?
+      - Recurrent?
+    """
+    ...

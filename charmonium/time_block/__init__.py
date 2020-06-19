@@ -1,4 +1,9 @@
-from ._lib import returns_four
+"""Time blocks of code
+
+See README.rst."""
+
+
+from .time_block import TimeBlock, logger
 
 __author__ = "Samuel Grayson"
 __email__ = "sam+dev@samgrayson.me"
@@ -6,4 +11,16 @@ __version__ = "0.0.0"
 __license__ = "MPL-2.0"
 __copyright__ = "2020, Samuel Grayson"
 
-__all__ = ["returns_four"]
+_time_block = TimeBlock()
+ctx = _time_block.ctx
+decor = _time_block.decor
+print_stats = _time_block.print_stats
+clear = _time_block.clear
+get_stats = _time_block.get_stats
+format_stats = _time_block.format_stats
+disable_stderr = _time_block.disable_stderr
+enable_stderr = _time_block.enable_stderr
+
+enable_stderr()
+
+__all__ = ["TimeBlock", "logger"]

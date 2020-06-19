@@ -69,6 +69,8 @@ disable=
     # Pylint disagrees with black on this. Pylint is wrong
     bad-continuation,
 
+    too-few-public-methods,
+
     # my personal style is to explicitly else-return and else-raise.
     # that way, if you change the return or raise, same functionality
     no-else-raise,
