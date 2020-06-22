@@ -1,3 +1,4 @@
+import asyncio
 import collections
 import contextlib
 import copy
@@ -7,10 +8,12 @@ import gc
 import logging
 import sys
 import threading
+from collections import defaultdict
 from typing import (
     Any,
     Awaitable,
     Callable,
+    DefaultDict,
     Dict,
     Generator,
     List,
@@ -24,11 +27,34 @@ import psutil
 
 from .utils import mean, mem2str, python_sanitize, stddev
 
+def safe_get_running_loop() -> Optional[asyncio.AbstractEventLoop]:
+    try:
+        return asyncio.get_running_loop()
+    except RuntimeError:
+        return None
+
+def safe_current_task() -> Optional[asyncio.Task]:
+    return asyncio.current_task() if safe_get_running_loop() else None
 
 class TimeBlockData(threading.local):
-    def __init__(self, root_label: str) -> None:
+    def __init__(self, initial_stack: List[str], use_task_name: bool = False) -> None:
         super().__init__()
-        self.stack = [root_label]
+        self.stacks: DefaultDict[int, List[str]] = defaultdict(self.initial_stack)
+        self.initial_stack_ = initial_stack
+        self.use_task_name = use_task_name
+
+    def initial_stack(self) -> List[str]:
+        if self.use_task_name:
+            task = safe_current_task()
+            return [task.get_name()] if task else self.initial_stack_[:]
+        else:
+            return self.initial_stack_[:]
+
+    @property
+    def stack(self) -> List[str]:
+        task = safe_current_task()
+        task_id = id(task) if task is not None else 0
+        return self.stacks[task_id]
 
 
 FunctionType = TypeVar("FunctionType", bound=Callable[..., Any])
@@ -45,7 +71,7 @@ class TimeBlock:
                 root_label = ""
             else:
                 root_label = "Thread " + threading.current_thread().name
-        self.data = TimeBlockData(root_label)
+        self.data = TimeBlockData([root_label])
         self.lock = threading.RLock()
         self.stats: Dict[
             Tuple[str, ...], List[Tuple[float, int]]
