@@ -7,7 +7,18 @@ import gc
 import logging
 import sys
 import threading
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, TypeVar, cast
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    cast,
+)
 
 import psutil
 
@@ -21,6 +32,7 @@ class TimeBlockData(threading.local):
 
 
 FunctionType = TypeVar("FunctionType", bound=Callable[..., Any])
+AsyncFunctionType = TypeVar("AsyncFunctionType", bound=Callable[..., Awaitable[Any]])
 
 logger = logging.getLogger("charmonium.logger")
 logger.setLevel(logging.DEBUG)
@@ -127,29 +139,6 @@ class TimeBlock:
         print_args: bool = False,
         do_gc: bool = False,
     ) -> Callable[[FunctionType], FunctionType]:
-        """Measure the time and memory-usage of the wrapped context.
-
-        >>> import charmonium.time_block as ch_time_block
-        >>> ch_time_block._enable_doctest_logging()
-        >>> import time
-        >>> @ch_time_block.decor()
-        ... def foo():
-        ...     time.sleep(0.2)
-        ...     bar()
-        ...
-        >>> @ch_time_block.decor()
-        ... def bar():
-        ...     time.sleep(0.1)
-        ...
-        >>> foo()
-        ...
-         > foo: running
-         > foo > bar: running
-         > foo > bar: 0.1s
-         > foo: 0.3s
-
-        """
-
         def make_timed_func(func: FunctionType) -> FunctionType:
             @functools.wraps(func)
             def timed_func(*args: Any, **kwargs: Any) -> Any:
@@ -178,6 +167,44 @@ class TimeBlock:
             return cast(FunctionType, timed_func)
 
         return make_timed_func
+
+    def adecor(
+        self,
+        print_start: bool = True,
+        print_stop: bool = True,
+        print_args: bool = False,
+        do_gc: bool = False,
+    ) -> Callable[[AsyncFunctionType], AsyncFunctionType]:
+        """Asynchronous version of decor"""
+
+        def make_timed_async_func(func: FunctionType) -> AsyncFunctionType:
+            @functools.wraps(func)
+            async def timed_func(*args: Any, **kwargs: Any) -> Any:
+                if print_args:
+                    arg_str = "".join(
+                        [
+                            "(",
+                            ", ".join(f"{arg!r}" for arg in args),
+                            ", ".join(
+                                f"{key}={val!r}" for key, val in sorted(kwargs.items())
+                            ),
+                            ")",
+                        ]
+                    )
+                else:
+                    arg_str = ""
+                with self.ctx(
+                    func.__qualname__,
+                    name_extra=arg_str,
+                    print_start=print_start,
+                    print_stop=print_stop,
+                    do_gc=do_gc,
+                ):
+                    return await func(*args, **kwargs)
+
+            return cast(AsyncFunctionType, timed_func)
+
+        return make_timed_async_func
 
     def format_stats(self) -> str:
         stats = {

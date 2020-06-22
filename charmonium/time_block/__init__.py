@@ -14,6 +14,7 @@ __copyright__ = "2020, Samuel Grayson"
 _time_block = TimeBlock()
 ctx = _time_block.ctx
 decor = _time_block.decor
+adecor = _time_block.adecor
 print_stats = _time_block.print_stats
 clear = _time_block.clear
 get_stats = _time_block.get_stats

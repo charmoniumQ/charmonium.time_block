@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import io
 import logging
@@ -85,4 +86,44 @@ foo\(3\)       =  100% of total =  100% of parent = \(.*?\) sec = 1 \(.*?\) sec 
 foo\(3\) > bar =  100% of total = +\d+% of parent = \(.*?\) sec = 1 \(.*?\) sec  \(.*?\) K?b
 """.rstrip(),
         ch_time_block.format_stats(),
+    )
+
+
+@ch_time_block.adecor()
+async def afoo() -> int:
+    await asyncio.sleep(0.3)
+    return 0
+
+
+async def abar() -> int:
+    await asyncio.sleep(0.02)
+    # this makes sure "abar" is ordered after "afoo"
+    with ch_time_block.ctx("abar"):
+        await asyncio.sleep(0.1)
+        1 + (await abaz())
+    return 1
+
+
+@ch_time_block.adecor()
+async def abaz() -> int:
+    await asyncio.sleep(0.1)
+    return 2
+
+
+def test_async() -> None:
+    with capture_logs() as capture:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.gather(afoo(), abar()))
+        loop.close()
+
+    check_lines(
+        r"""
+ > afoo: running
+ > abar: running
+ > abar > abaz: running
+ > abar > abaz: 0.1s
+ > abar: 0.2s
+ > afoo: 0.3s
+""",
+        capture.getvalue(),
     )

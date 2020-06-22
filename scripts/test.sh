@@ -79,7 +79,7 @@ flag_check=$([ -n "${check}" ] && echo "--check")
 capture \
 	poetry run \
 		env PYTHONPATH=".:${PYTHONPATH}" MYPYPATH="./stubs:${MYPYPATH}" \
-			mypy --namespace-packages -p ${package_name}
+			dmypy run -- --namespace-packages -p ${package_name}
 capture \
 	poetry run \
 		env PYTHONPATH=".:${PYTHONPATH}" MYPYPATH="./stubs:${MYPYPATH}" \
