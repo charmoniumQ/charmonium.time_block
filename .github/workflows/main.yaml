@@ -15,36 +15,9 @@ jobs:
 
       # using pyenv to install multiple Python versions on the same instance is more efficient than a build matrix
       - uses: gabrielfalcao/pyenv-action@v6
-        with:
-          versions: 3.6.12, 3.7.9, 3.8.5
 
-      # THAT DIDN"T WORK!!
-      # I'm salty, but I guess I'll have to do it myself.
-      # - name: Install Pythons with pyenv
-      #   env:
-      #     python_versions: 3.6.12 3.7.9 3.8.5
-      #   run: |
-      #     apt update && apt install -y git
-      #     curl https://pyenv.run | bash
-      #     cat >> ~/.bashrc <<EOF
-      #     export PATH="~/.pyenv/bin:\$PATH"
-      #     eval "$(pyenv init -)"
-      #     eval "$(pyenv virtualenv-init -)"
-      #     EOF
-      #     . ~/.bashrc
-      #     pyenv install ${python_versions}
-
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: 3.6
-
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: 3.7
-
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: 3.8.5
+      - run: |
+          pyenv install --list
 
       - run: |
           cd "${GITHUB_WORKSPACE}"
