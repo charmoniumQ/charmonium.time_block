@@ -43,6 +43,7 @@ wrapt = "^1.12.1"
 legacy_tox_ini = """
 [tox]
 envlist = py36,py37,py38
+# See tool.poetry.dependencies.python
 isolated_build = True
 
 [testenv]

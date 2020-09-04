@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  python_versions: 3.6.10 3.7.7 3.8.2
+  # Installs the same versions as in Tox
+
 jobs:
   build:
     name: Test
@@ -15,8 +19,15 @@ jobs:
 
       # using pyenv to install multiple Python versions on the same instance is more efficient than a build matrix
       - uses: gabrielfalcao/pyenv-action@v6
+        id: install_pyenv
+
+      - uses: actions/cache@v2
         with:
-          versions: 3.6.10, 3.7.7, 3.8.2
+          path: ${{ steps.install_pyenv.outputs.pyenv_root }}
+          key: ${{ env.python_versions }}
+
+      - run: |
+          pyenv install ${python_versions}
 
       - run: |
           cd "${GITHUB_WORKSPACE}"
