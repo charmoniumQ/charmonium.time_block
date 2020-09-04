@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: {{ env.GITHUB_WORKSPACE }}/.tox
+          path: ${{ env.GITHUB_WORKSPACE }}/.tox
           key: .tox
 
       - run: |
