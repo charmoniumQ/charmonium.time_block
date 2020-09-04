@@ -15,9 +15,8 @@ jobs:
 
       # using pyenv to install multiple Python versions on the same instance is more efficient than a build matrix
       - uses: gabrielfalcao/pyenv-action@v6
-
-      - run: |
-          pyenv install --list
+        with:
+          versions: 3.6.10, 3.7.7, 3.8.2
 
       - run: |
           cd "${GITHUB_WORKSPACE}"
