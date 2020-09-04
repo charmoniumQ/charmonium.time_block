@@ -42,14 +42,17 @@ wrapt = "^1.12.1"
 # Currently only the old format is supported via legacy_tox_ini, a native implementation is planned though.
 legacy_tox_ini = """
 [tox]
-envlist = py36,py37,py38
+envlist = py38
 # See tool.poetry.dependencies.python
 isolated_build = True
 
 [testenv]
 deps = poetry
-install_command = poetry install
-commands = ./scripts/test.sh
+setenv = MYPYPATH=stubs
+commands =
+  poetry install
+  mypy --namespace-packages -p charmonium.time_block
+  pytest --quiet --exitfirst tests/
 """
 
 [build-system]
