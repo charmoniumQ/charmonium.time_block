@@ -1,0 +1,34 @@
+on:
+  push:
+    branches: [master, add-ci]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Install the same versions as in Tox
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.GITHUB_WORKSPACE }}/.tox
+          key: .tox
+
+      - name: tox tests
+        run: |
+          cd "${GITHUB_WORKSPACE}"
+          python -m pip install tox
+          tox

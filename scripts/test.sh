@@ -79,20 +79,13 @@ flag_check=$([ -n "${check}" ] && echo "--check")
 capture \
 	poetry run \
 		env PYTHONPATH=".:${PYTHONPATH}" MYPYPATH="./stubs:${MYPYPATH}" \
-			dmypy run -- --namespace-packages -p ${package_name}
-capture \
-	poetry run \
-		env PYTHONPATH=".:${PYTHONPATH}" MYPYPATH="./stubs:${MYPYPATH}" \
-			mypy --namespace-packages $(excluding "stubs" $(excluding "${package_path}" ${srcs}))
-# ${flag_verbose} is too verbose here
+			dmypy run -- --namespace-packages -p charmonium.time_block
 
-# Note that I can't use dmypy because I have a package (-p) and files
-# to check, which are (unfortunately) mutually exclusive arguments.
+# ${flag_verbose} is too verbose here
 
 capture \
 	poetry run \
 		pytest --quiet --exitfirst .
-# I only care about --cov= in the exported package
 
 [[ -z "${htmlcov}" ]] || \
 	xdg-open htmlcov/index.html

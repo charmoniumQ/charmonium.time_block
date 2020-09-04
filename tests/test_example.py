@@ -70,7 +70,7 @@ def test_decor() -> None:
         r"""
  > foo\(3\): running
  > foo\(3\) > bar: running
- > foo\(3\) > bar: 0.1s \d+.\d+K?b \(gc: 0.\d+s\)
+ > foo\(3\) > bar: 0.1s \d+.\d+(Ki)?B \(gc: 0.\d+s\)
  > foo\(3\): 0.3s
 """,
         capture.getvalue(),
@@ -82,8 +82,8 @@ def test_print() -> None:
 
     check_lines(
         r"""
-foo\(3\)       =  100% of total =  100% of parent = \(.*?\) sec = 1 \(.*?\) sec  \(.*?\) K?b
-foo\(3\) > bar =  100% of total = +\d+% of parent = \(.*?\) sec = 1 \(.*?\) sec  \(.*?\) K?b
+foo\(3\)       =  100% of total =  100% of parent = \(.*?\) sec = 1 \(.*?\) sec  \(.*?\) (Ki)?B
+foo\(3\) > bar =  100% of total = +\d+% of parent = \(.*?\) sec = 1 \(.*?\) sec  \(.*?\) (Ki)?B
 """.rstrip(),
         ch_time_block.format_stats(),
     )

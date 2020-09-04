@@ -30,7 +30,7 @@ import psutil
 from .utils import mean, mem2str, python_sanitize, stddev
 
 
-def safe_current_task() -> Optional[asyncio.Task[Any]]:
+def safe_current_task() -> Optional[Any]:
     try:
         return asyncio.current_task()
     except RuntimeError:
@@ -113,7 +113,7 @@ class TimeBlock:
          > main stuff 1: running
          > main stuff 1 > inner stuff: running
          > main stuff 1 > inner stuff: 0.2s
-         > main stuff 1: 0.3s ...b (gc: ...s)
+         > main stuff 1: 0.3s ...B (gc: ...s)
 
         """
 
