@@ -27,9 +27,6 @@ jobs:
           python-version: 3.8
 
       - run: |
-          pyenv install ${python_versions}
-
-      - run: |
           cd "${GITHUB_WORKSPACE}"
           python -m pip install tox
           tox
