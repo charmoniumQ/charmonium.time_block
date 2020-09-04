@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import collections
 import contextlib
@@ -27,14 +29,13 @@ import psutil
 
 from .utils import mean, mem2str, python_sanitize, stddev
 
-def safe_get_running_loop() -> Optional[asyncio.AbstractEventLoop]:
+
+def safe_current_task() -> Optional[asyncio.Task[Any]]:
     try:
-        return asyncio.get_running_loop()
+        return asyncio.current_task()
     except RuntimeError:
         return None
 
-def safe_current_task() -> Optional[asyncio.Task]:
-    return asyncio.current_task() if safe_get_running_loop() else None
 
 class TimeBlockData(threading.local):
     def __init__(self, initial_stack: List[str], use_task_name: bool = False) -> None:
