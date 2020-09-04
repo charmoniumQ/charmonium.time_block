@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import collections
 import contextlib
@@ -111,7 +113,7 @@ class TimeBlock:
          > main stuff 1: running
          > main stuff 1 > inner stuff: running
          > main stuff 1 > inner stuff: 0.2s
-         > main stuff 1: 0.3s ...b (gc: ...s)
+         > main stuff 1: 0.3s ...B (gc: ...s)
 
         """
 

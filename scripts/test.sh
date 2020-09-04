@@ -79,7 +79,7 @@ flag_check=$([ -n "${check}" ] && echo "--check")
 capture \
 	poetry run \
 		env PYTHONPATH=".:${PYTHONPATH}" MYPYPATH="./stubs:${MYPYPATH}" \
-			dmypy run -- --namespace-packages $(excluding "stubs" ${srcs})
+			dmypy run -- --namespace-packages -p charmonium.time_block
 
 # ${flag_verbose} is too verbose here
 
