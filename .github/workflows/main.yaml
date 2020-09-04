@@ -31,7 +31,8 @@ jobs:
           path: ${{ env.GITHUB_WORKSPACE }}/.tox
           key: .tox
 
-      - run: |
+      - name: tox tests
+        run: |
           cd "${GITHUB_WORKSPACE}"
           python -m pip install tox
           tox
