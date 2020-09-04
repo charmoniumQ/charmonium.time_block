@@ -28,7 +28,7 @@ import psutil
 from .utils import mean, mem2str, python_sanitize, stddev
 
 
-def safe_current_task() -> Optional[Any]:
+def safe_current_task() -> Optional[asyncio.Task[Any]]:
     try:
         return asyncio.current_task()
     except RuntimeError:

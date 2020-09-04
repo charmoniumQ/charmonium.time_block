@@ -14,7 +14,7 @@ packages = [
 time_block = "charmonium.time_block._cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 psutil = "^5.7.0"
 
 [tool.poetry.dev-dependencies]
@@ -42,7 +42,7 @@ wrapt = "^1.12.1"
 # Currently only the old format is supported via legacy_tox_ini, a native implementation is planned though.
 legacy_tox_ini = """
 [tox]
-envlist = py36,py37,py38
+envlist = py37,py38
 # See tool.poetry.dependencies.python
 isolated_build = True
 

@@ -16,10 +16,6 @@ jobs:
       # Install the same versions as in Tox
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.6
-
-      - uses: actions/setup-python@v2
-        with:
           python-version: 3.7
 
       - uses: actions/setup-python@v2
