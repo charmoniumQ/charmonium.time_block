@@ -42,20 +42,15 @@ wrapt = "^1.12.1"
 # Currently only the old format is supported via legacy_tox_ini, a native implementation is planned though.
 legacy_tox_ini = """
 [tox]
-envlist = py36
+envlist = py36,py37,py38
 isolated_build = True
 
-[tox:.package]
-# note tox will use the same python version as under what tox is installed to package
-# so unless this is python 3 you can require a given python version for the packaging
-# environment via the basepython key
-basepython = python3
-
 [testenv]
-commands =
-    poetry install
-    pytest --quiet --exitfirst tests
+deps = poetry
+install_command = poetry install
+commands = ./scripts/test.sh
 """
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
