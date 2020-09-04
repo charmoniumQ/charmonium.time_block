@@ -42,7 +42,7 @@ wrapt = "^1.12.1"
 # Currently only the old format is supported via legacy_tox_ini, a native implementation is planned though.
 legacy_tox_ini = """
 [tox]
-envlist = py38
+envlist = py36,py37,py38
 # See tool.poetry.dependencies.python
 isolated_build = True
 
