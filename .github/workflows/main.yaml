@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [master]
+    branches: [master, add-ci]
   pull_request:
     branches: [master]
 
@@ -14,9 +14,9 @@ jobs:
       - uses: actions/checkout@v2
 
       # using pyenv to install multiple Python versions on the same instance is more efficient than a build matrix
-      - uses: gabrielfalcao/pyenv-action@v6
-        with:
-          versions: 3.6.12, 3.7.9, 3.8.5
+      # - uses: gabrielfalcao/pyenv-action@v6
+      #   with:
+      #     versions: 3.6.12, 3.7.9, 3.8.5
 
       # THAT DIDN"T WORK!!
       # I'm salty, but I guess I'll have to do it myself.
@@ -42,9 +42,9 @@ jobs:
       #   with:
       #     python-version: 3.7
 
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: 3.8
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8.5
 
       - run: |
           cd "${GITHUB_WORKSPACE}"
