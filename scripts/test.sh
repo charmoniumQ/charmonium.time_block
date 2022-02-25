@@ -85,7 +85,7 @@ capture \
 
 capture \
 	poetry run \
-		pytest --quiet --exitfirst .
+		python -m pytest --quiet --exitfirst .
 
 [[ -z "${htmlcov}" ]] || \
 	xdg-open htmlcov/index.html

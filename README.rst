@@ -18,11 +18,11 @@ Quickstart
     >>> import charmonium.time_block as ch_time_block
     >>> ch_time_block._enable_doctest_logging()
     >>> import time
-    >>>
+    >>> 
     >>> def foo():
     ...     with ch_time_block.ctx("bar"):
     ...         time.sleep(0.1)
-    ...
+    ... 
     >>> foo()
      > bar: running
      > bar: 0.1s
@@ -34,15 +34,15 @@ Equivalent context-manager:
 
     >>> import charmonium.time_block as ch_time_block
     >>> ch_time_block._enable_doctest_logging()
-    >>>
+    >>> 
     >>> def foo():
     ...     bar()
-    ...
-    >>>
-    >>> @ch_time_block.ctx("bar")
+    ... 
+    >>> 
+    >>> @ch_time_block.decor("bar")
     ... def bar():
     ...     time.sleep(0.1)
-    ...
+    ... 
     >>> foo()
      > bar: running
      > bar: 0.1s
@@ -53,6 +53,9 @@ is more appropriate when you already know the bottleneck, and just
 want to see how slow a few functions/blocks are.
 
 .. _`line_prof`: https://github.com/rkern/line_profiler
+
+Unlike external profiling, This does not need source-code access, so
+it will work from ``.eggs``.
 
 Unlike external profiling, this package reports in realtime to
 `logger`_ (destination customizable). This is intended to let the user
@@ -89,19 +92,19 @@ recurrent, and it maintains a stack.
     >>> import charmonium.time_block as ch_time_block
     >>> ch_time_block._enable_doctest_logging()
     >>> import time
-    >>>
+    >>> 
     >>> @ch_time_block.decor()
     ... def foo():
     ...     time.sleep(0.1)
     ...     bar()
-    ...
-    >>>
+    ... 
+    >>> 
     >>> @ch_time_block.decor()
     ... def bar():
     ...     time.sleep(0.2)
     ...     with ch_time_block.ctx("baz"):
     ...         time.sleep(0.3)
-    ...
+    ... 
     >>> foo()
      > foo: running
      > foo > bar: running
@@ -110,15 +113,14 @@ recurrent, and it maintains a stack.
      > foo > bar: 0.5s
      > foo: 0.6s
 
-This handles recursion. Handling recursion any other way would break
-evaluating self / parent, because parent could be self.
+This handles recursion.
 
 .. code:: python
 
     >>> import charmonium.time_block as ch_time_block
     >>> ch_time_block._enable_doctest_logging()
     >>> import time
-    >>>
+    >>> 
     >>> @ch_time_block.decor(print_args=True)
     ... def foo(n):
     ...     if n != 0:
@@ -143,21 +145,21 @@ This even works for threads (or more usefully `ThreadPoolExecutor`_).
     >>> ch_time_block._enable_doctest_logging()
     >>> import time
     >>> from concurrent.futures import ThreadPoolExecutor
-    >>>
+    >>> 
     >>> @ch_time_block.decor()
     ... def foo():
     ...     time.sleep(0.1)
     ...     baz()
-    ...
+    ... 
     >>> @ch_time_block.decor()
     ... def bar():
     ...     time.sleep(0.2)
     ...     baz()
-    ...
+    ... 
     >>> @ch_time_block.decor()
     ... def baz():
     ...     return time.sleep(0.3)
-    ...
+    ... 
     >>> from threading import Thread
     >>> threads = [Thread(target=foo), Thread(target=bar)]
     >>> for thread in threads: # doctest:+SKIP
@@ -184,26 +186,29 @@ and memory used.
     >>> ch_time_block._enable_doctest_logging()
     >>> ch_time_block.clear()
     >>> import time
-    >>>
+    >>> 
     >>> @ch_time_block.decor()
     ... def foo():
     ...     time.sleep(0.1)
     ...     bar()
-    ...
-    >>>
+    ... 
+    >>> 
     >>> @ch_time_block.decor()
     ... def bar():
     ...     time.sleep(0.2)
-    ...
-    >>> foo()
+    ... 
+    >>> [foo() for _ in range(2)]
      > foo: running
      > foo > bar: running
      > foo > bar: 0.2s
      > foo: 0.3s
+     > foo: running
+     > foo > bar: running
+     > foo > bar: 0.2s
+     > foo: 0.3s
+    [None, None]
     >>> ch_time_block.get_stats() # doctest:+SKIP
-    {('foo', 'bar'): [(0.200505, 0)], ('foo',): [(0.301857, 0)]}
-    >>> ch_time_block.print_stats() # doctest:+SKIP
-    foo       =  100% of total =  100% of parent = (0.30 +/- 0.00) sec = 1 (0.30 +/- 0.00) sec  (0.0 +/- 0.0) b
-    foo > bar =  100% of total =   67% of parent = (0.20 +/- 0.00) sec = 1 (0.20 +/- 0.00) sec  (0.0 +/- 0.0) b
-
-Unlike external profiling, This does not need source-code access, so it will work from ``.eggs``.
+    {('foo', 'bar'): [(0.2, 0), (0.2, 0)], ('foo',): [(0.3, 0), (0.3, 0)]}
+    >>> ch_time_block.print_stats()
+    foo       =  100% of total =  100% of parent = (0.3 +/- 0.0) sec =   2*(0.2 +/- 0.0) sec using (0.0 +/- 0.0) B
+    foo > bar =  100% of total =   66% of parent = (0.2 +/- 0.0) sec =   2*(0.1 +/- 0.0) sec using (0.0 +/- 0.0) B
