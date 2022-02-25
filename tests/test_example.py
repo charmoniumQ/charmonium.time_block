@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 import io
 import logging
+import pickle
 import re
 import time
 from typing import Generator
@@ -82,8 +83,8 @@ def test_print() -> None:
 
     check_lines(
         r"""
-foo\(3\)       =  100% of total =  100% of parent = \(.*?\) sec = 1 \(.*?\) sec  \(.*?\) (Ki)?B
-foo\(3\) > bar =  100% of total = +\d+% of parent = \(.*?\) sec = 1 \(.*?\) sec  \(.*?\) (Ki)?B
+foo\(3\)       =  100% of total =  100% of parent = \(.*?\) sec = *1\*\(.*?\) sec using \(.*?\) (Ki)?B
+foo\(3\) > bar =  100% of total = +\d+% of parent = \(.*?\) sec = *1\*\(.*?\) sec using \(.*?\) (Ki)?B
 """.rstrip(),
         ch_time_block.format_stats(),
     )
@@ -127,3 +128,7 @@ def test_async() -> None:
 """,
         capture.getvalue(),
     )
+
+
+def test_pickle() -> None:
+    pickle.loads(pickle.dumps(ch_time_block.TimeBlock()))

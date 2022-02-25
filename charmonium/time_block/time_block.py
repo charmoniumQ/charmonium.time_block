@@ -19,13 +19,14 @@ from typing import (
     Dict,
     Generator,
     List,
+    Mapping,
     Optional,
     Tuple,
     TypeVar,
     cast,
 )
 
-import psutil
+import psutil  # type: ignore
 
 from .utils import mean, mem2str, python_sanitize, stddev
 
@@ -43,6 +44,12 @@ class TimeBlockData(threading.local):
         self.stacks: DefaultDict[int, List[str]] = defaultdict(self.initial_stack)
         self.initial_stack_ = initial_stack
         self.use_task_name = use_task_name
+
+    def __getstate__(self) -> Mapping[str, Any]:
+        return self.__dict__
+
+    def __setstate__(self, state: Mapping[str, Any]) -> None:
+        self.__dict__.update(state)
 
     def initial_stack(self) -> List[str]:
         if self.use_task_name:
@@ -80,6 +87,16 @@ class TimeBlock:
         self.logger = logger
         self.handler = logging.StreamHandler(sys.stdout)
         self.handler.setFormatter(logging.Formatter("%(message)s"))
+
+    def __getstate__(self) -> Mapping[str, Any]:
+        return {
+            "stats": self.stats,
+            "data": self.data,
+        }
+
+    def __setstate__(self, state: Mapping[str, Any]) -> None:
+        self.stats = state["stats"]
+        self.data = state["data"]
 
     def get_stats(self) -> Dict[Tuple[str, ...], List[Tuple[float, int]]]:
         """Gets the stats for a specific function."""
@@ -278,11 +295,11 @@ class TimeBlock:
                         f"{key_str:{key_field_length}s}",
                         f"{percent_total: 4.0f}% of total",
                         f"{percent_parent: 4.0f}% of parent",
-                        f"({cumulative_time_m:.2f} +/- {cumulative_time_s:.2f}) sec",
-                        f"{n_calls} ({percall_time_m:.2f} +/- {percall_time_s:.2f}) sec",
+                        f"({cumulative_time_m:3.1f} +/- {cumulative_time_s:3.1f}) sec",
+                        f"{n_calls: >3d}*({percall_time_m:3.1f} +/- {percall_time_s:3.1f}) sec",
                     ]
                 )
-                + f"  ({mem_m:.1f} +/- {mem_s:.1f}) {mem_unit}"
+                + f" using ({mem_m:.1f} +/- {mem_s:.1f}) {mem_unit}"
             )
 
         return "\n".join(lines)
