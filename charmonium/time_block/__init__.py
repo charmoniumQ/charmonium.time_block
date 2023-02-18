@@ -7,7 +7,7 @@ from .time_block import TimeBlock, logger
 
 __author__ = "Samuel Grayson"
 __email__ = "sam+dev@samgrayson.me"
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __license__ = "MPL-2.0"
 __copyright__ = "2020, Samuel Grayson"
 
