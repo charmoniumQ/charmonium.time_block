@@ -134,11 +134,10 @@ class TimeBlock:
 
         """
 
-        child_logger = logger.getChild(python_sanitize(name))
         self.data.stack.append(name + name_extra)
         qualified_name_str = " > ".join(self.data.stack)
         if print_start:
-            child_logger.debug("%s: running", qualified_name_str)
+            self.logger.debug("%s: running", qualified_name_str)
         exc: Optional[Exception] = None
         process = psutil.Process()
         time_start = datetime.datetime.now()
@@ -164,7 +163,7 @@ class TimeBlock:
             self.data.stack.pop()
             if print_stop:
                 mem_val, mem_unit, _ = mem2str(mem_leaked)
-                child_logger.debug(
+                self.logger.debug(
                     "%s: %.1fs%s%s",
                     qualified_name_str,
                     duration,
