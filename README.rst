@@ -207,8 +207,8 @@ and memory used.
      > foo > bar: 0.2s
      > foo: 0.3s
     [None, None]
-    >>> ch_time_block.get_stats() # doctest:+SKIP
+    >>> ch_time_block.get_stats() # doctest:+SKIP (exact times can vary)
     {('foo', 'bar'): [(0.2, 0), (0.2, 0)], ('foo',): [(0.3, 0), (0.3, 0)]}
-    >>> ch_time_block.print_stats()
+    >>> ch_time_block.print_stats() # doctest:+SKIP (exact times can vary)
     foo       =  100% of total =  100% of parent = (0.3 +/- 0.0) sec =   2*(0.2 +/- 0.0) sec using (0.0 +/- 0.0) B
     foo > bar =  100% of total =   66% of parent = (0.2 +/- 0.0) sec =   2*(0.1 +/- 0.0) sec using (0.0 +/- 0.0) B
