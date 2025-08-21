@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "charmonium.time_block"
-version = "0.3.4"
+version = "0.4.0"
 description = "Time a block of code."
 authors = ["Samuel Grayson <sam+dev@samgrayson.me>"]
 license = "MIT"
