@@ -29,6 +29,7 @@ coverage = "^7.10.4"
 pylint-exit = "^1.2.0"
 types-psutil = "^7.0.0.20250801"
 pytest-asyncio = "^1.1.0"
+twine = "^6.1.0"
 
 [tool.tox]
 # According to tox docs
