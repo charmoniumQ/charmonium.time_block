@@ -18,44 +18,37 @@
     (
       system: let
         pkgs = import nixpkgs { inherit system; };
-        python = pkgs.python313;
         pyprojectToml = builtins.fromTOML (builtins.readFile ./pyproject.toml);
-        checkInputsPy = pypkgs: [
-          pypkgs.bump2version
-          pypkgs.mypy
-          pypkgs.pytest
-          pypkgs.tox
-          pypkgs.autoflake
-          pypkgs.isort
-          pypkgs.black
-          pypkgs.pylint
-          pypkgs.coverage
-          pypkgs.types-psutil
-          pypkgs.pytest-asyncio
-          pypkgs.twine
-        ];
+        mkApp = python: python.pkgs.buildPythonPackage {
+          pname = pyprojectToml.tool.poetry.name;
+          pyproject = true;
+          version = pyprojectToml.tool.poetry.version;
+          src = ./.;
+          nativeBuildInputs = [ python.pkgs.poetry-core ];
+          propagatedBuildInputs = [ ];
+          checkInputs = [
+            python.pkgs.bump2version
+            python.pkgs.mypy
+            python.pkgs.pytest
+            python.pkgs.tox
+            python.pkgs.autoflake
+            python.pkgs.isort
+            python.pkgs.black
+            python.pkgs.pylint
+            python.pkgs.coverage
+            python.pkgs.types-psutil
+            python.pkgs.pytest-asyncio
+            python.pkgs.twine
+          ];
+          pythonImportsCheck = [ "charmonium.time_block" ];
+          nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
+        };
       in rec {
         packages = rec {
-          default = charmonium-time-block;
-          charmonium-time-block = python.pkgs.buildPythonPackage {
-            pname = pyprojectToml.tool.poetry.name;
-            pyproject = true;
-            version = pyprojectToml.tool.poetry.version;
-            src = ./.;
-            nativeBuildInputs = [ python.pkgs.poetry-core ];
-            propagatedBuildInputs = [ ];
-            checkInputs = (checkInputsPy python.pkgs) ++ [ pkgs.bash ];
-            pythonImportsCheck = [ "charmonium.time_block" ];
-            nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
-          };
-        };
-        devShells = {
-          default = pkgs.mkShell {
-            packages = [
-              (python.withPackages checkInputsPy)
-              pkgs.poetry
-            ];
-          };
+          py310 = mkApp pkgs.python310;
+          py311 = mkApp pkgs.python311;
+          py312 = mkApp pkgs.python312;
+          py313 = mkApp pkgs.python313;
         };
       }
     );
