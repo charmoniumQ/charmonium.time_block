@@ -10,6 +10,7 @@ import gc
 import logging
 import sys
 import threading
+import types
 from collections import defaultdict
 from typing import (
     Any,
@@ -21,14 +22,18 @@ from typing import (
     List,
     Mapping,
     Optional,
+    ParamSpec,
     Tuple,
     TypeVar,
-    cast,
 )
 
-import psutil  # type: ignore
+psutil: types.ModuleType | None
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
-from .utils import mean, mem2str, python_sanitize, stddev
+from .utils import mean, mem2str, stddev
 
 
 def safe_current_task() -> Optional[Any]:
@@ -65,8 +70,8 @@ class TimeBlockData(threading.local):
         return self.stacks[task_id]
 
 
-FunctionType = TypeVar("FunctionType", bound=Callable[..., Any])
-AsyncFunctionType = TypeVar("AsyncFunctionType", bound=Callable[..., Awaitable[Any]])
+_ReturnType = TypeVar("_ReturnType")
+_Params = ParamSpec("_Params")
 
 logger = logging.getLogger("charmonium.logger")
 logger.setLevel(logging.DEBUG)
@@ -81,9 +86,9 @@ class TimeBlock:
                 root_label = "Thread " + threading.current_thread().name
         self.data = TimeBlockData([root_label])
         self.lock = threading.RLock()
-        self.stats: Dict[
-            Tuple[str, ...], List[Tuple[float, int]]
-        ] = collections.defaultdict(list)
+        self.stats: Dict[Tuple[str, ...], List[Tuple[float, int]]] = (
+            collections.defaultdict(list)
+        )
         self.logger = logger
         self.handler = logging.StreamHandler(sys.stdout)
         self.handler.setFormatter(logging.Formatter("%(message)s"))
@@ -139,9 +144,13 @@ class TimeBlock:
         if print_start:
             self.logger.debug("%s: running", qualified_name_str)
         exc: Optional[Exception] = None
-        process = psutil.Process()
+        if psutil is None:
+            process = None
+            mem_start = 0
+        else:
+            process = psutil.Process()
+            mem_start = process.memory_info().rss
         time_start = datetime.datetime.now()
-        mem_start = process.memory_info().rss
         try:
             yield
         except Exception as exc2:  # pylint: disable=broad-except
@@ -156,7 +165,7 @@ class TimeBlock:
                 gc_duration = (gc_end - gc_start).total_seconds()
             else:
                 gc_duration = 0
-            mem_end = process.memory_info().rss
+            mem_end = 0 if process is None else process.memory_info().rss
             mem_leaked = mem_end - mem_start
             with self.lock:
                 self.stats[tuple(self.data.stack[1:])].append((duration, mem_leaked))
@@ -167,9 +176,11 @@ class TimeBlock:
                     "%s: %.1fs%s%s",
                     qualified_name_str,
                     duration,
-                    f" {mem_val:.1f}{mem_unit} (gc: {gc_duration:.1f}s)"
-                    if do_gc
-                    else "",
+                    (
+                        f" {mem_val:.1f}{mem_unit} (gc: {gc_duration:.1f}s)"
+                        if do_gc
+                        else ""
+                    ),
                     " (err)" if exc is not None else "",
                 )
         if exc:
@@ -181,10 +192,14 @@ class TimeBlock:
         print_stop: bool = True,
         print_args: bool = False,
         do_gc: bool = False,
-    ) -> Callable[[FunctionType], FunctionType]:
-        def make_timed_func(func: FunctionType) -> FunctionType:
+    ) -> Callable[[Callable[_Params, _ReturnType]], Callable[_Params, _ReturnType]]:
+        def make_timed_func(
+            func: Callable[_Params, _ReturnType],
+        ) -> Callable[_Params, _ReturnType]:
             @functools.wraps(func)
-            def timed_func(*args: Any, **kwargs: Any) -> Any:
+            def timed_func(
+                *args: _Params.args, **kwargs: _Params.kwargs
+            ) -> _ReturnType:
                 if print_args:
                     arg_str = "".join(
                         [
@@ -207,7 +222,7 @@ class TimeBlock:
                 ):
                     return func(*args, **kwargs)
 
-            return cast(FunctionType, timed_func)
+            return timed_func
 
         return make_timed_func
 
@@ -217,12 +232,19 @@ class TimeBlock:
         print_stop: bool = True,
         print_args: bool = False,
         do_gc: bool = False,
-    ) -> Callable[[AsyncFunctionType], AsyncFunctionType]:
+    ) -> Callable[
+        [Callable[_Params, Awaitable[_ReturnType]]],
+        Callable[_Params, Awaitable[_ReturnType]],
+    ]:
         """Asynchronous version of decor"""
 
-        def make_timed_async_func(func: FunctionType) -> AsyncFunctionType:
+        def make_timed_async_func(
+            func: Callable[_Params, Awaitable[_ReturnType]],
+        ) -> Callable[_Params, Awaitable[_ReturnType]]:
             @functools.wraps(func)
-            async def timed_func(*args: Any, **kwargs: Any) -> Any:
+            async def timed_func(
+                *args: _Params.args, **kwargs: _Params.kwargs
+            ) -> _ReturnType:
                 if print_args:
                     arg_str = "".join(
                         [
@@ -245,7 +267,7 @@ class TimeBlock:
                 ):
                     return await func(*args, **kwargs)
 
-            return cast(AsyncFunctionType, timed_func)
+            return timed_func
 
         return make_timed_async_func
 

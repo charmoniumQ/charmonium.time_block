@@ -7,20 +7,24 @@ def mem2str(
     n_bytes: float, base2: bool = True, round_up: bool = False
 ) -> Tuple[float, str, float]:
     rounder = cast(Callable[[float], float], round) if round_up else math.floor
-    unit_map: List[str] = ["B", "KiB", "MiB", "GiB", "TiB"] if base2 else [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-        "TB",
-    ]
+    unit_map: List[str] = (
+        ["B", "KiB", "MiB", "GiB", "TiB"]
+        if base2
+        else [
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB",
+        ]
+    )
     base = 1024 if base2 else 1000
     unit_int = (
         min([len(unit_map) - 1, int(rounder(math.log(math.fabs(n_bytes), base)))])
         if n_bytes != 0
         else 0
     )
-    unit_div = base ** unit_int
+    unit_div = base**unit_int
     return n_bytes / unit_div, unit_map[unit_int], unit_div
 
 

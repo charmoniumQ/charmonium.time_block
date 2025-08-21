@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 cd "$(dirname "${0}")/.."
 
@@ -64,7 +64,7 @@ flag_check=$([ -n "${check}" ] && echo "--check")
 [[ -n "${skip_lint}" ]] || \
 	capture \
 		poetry run \
-			isort --recursive ${flag_check_only} ${srcs}
+			isort ${flag_check_only} ${srcs}
 
 [[ -n "${skip_lint}" ]] || \
 	capture \
@@ -77,9 +77,9 @@ flag_check=$([ -n "${check}" ] && echo "--check")
 			sh -c "pylint ${flag_verbose} ${package_path} ${other_srcs} || poetry run pylint-exit -efail \${?} > /dev/null"
 
 capture \
-	poetry run \
+	poetry run -- \
 		env PYTHONPATH=".:${PYTHONPATH}" MYPYPATH="./stubs:${MYPYPATH}" \
-			dmypy run -- --namespace-packages -p charmonium.time_block
+			dmypy run -- --namespace-packages charmonium/
 
 # ${flag_verbose} is too verbose here
 

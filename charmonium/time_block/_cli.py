@@ -9,4 +9,3 @@ def main() -> None:
       - Print memory usage?
       - Recurrent?
     """
-    ...

@@ -7,6 +7,8 @@ import re
 import time
 from typing import Generator
 
+import pytest
+
 import charmonium.time_block as ch_time_block
 
 
@@ -111,11 +113,10 @@ async def abaz() -> int:
     return 2
 
 
-def test_async() -> None:
+@pytest.mark.asyncio
+async def test_async() -> None:
     with capture_logs() as capture:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(asyncio.gather(afoo(), abar()))
-        loop.close()
+        await asyncio.gather(afoo(), abar())
 
     check_lines(
         r"""

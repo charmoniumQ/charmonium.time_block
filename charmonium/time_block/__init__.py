@@ -2,7 +2,6 @@
 
 See README.rst."""
 
-
 from .time_block import TimeBlock, logger
 
 __author__ = "Samuel Grayson"

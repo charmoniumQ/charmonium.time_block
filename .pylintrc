@@ -66,9 +66,6 @@ disable=
 	# This is needed to make mypy types work (such as OrderedDict[K, V])
     unsubscriptable-object,
 
-    # Pylint disagrees with black on this. Pylint is wrong
-    bad-continuation,
-
     too-few-public-methods,
 
     # my personal style is to explicitly else-return and else-raise.
@@ -402,13 +399,6 @@ max-line-length=100
 # Maximum number of lines in a module.
 max-module-lines=1000
 
-# List of optional constructs for which whitespace checking is disabled. `dict-
-# separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
-# `trailing-comma` allows a space between comma and closing bracket: (a, ).
-# `empty-line` allows space-only lines.
-no-space-check=trailing-comma,
-               dict-separator
-
 # Allow the body of a class to be on the same line as the declaration if body
 # contains single statement.
 single-line-class-stmt=no
@@ -510,5 +500,5 @@ min-public-methods=2
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "BaseException, Exception".
-overgeneral-exceptions=BaseException,
-                       Exception
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception

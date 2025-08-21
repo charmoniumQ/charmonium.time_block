@@ -7,5 +7,5 @@
 - [ ] Set up the tox envlist in pyproject.toml
 - [ ] Fill copyright informaiton into license (if necessary).
 - [ ] Review CODE_OF_CONDUCT (contributor-covenant), especially enforcement.
-- [ ] Make `psutil` optional.
+- [x] Make `psutil` optional.
 - [ ] Use [Decorator](https://github.com/micheles/decorator/blob/master/docs/documentation.md)
