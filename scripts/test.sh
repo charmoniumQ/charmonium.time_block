@@ -74,7 +74,7 @@ flag_check=$([ -n "${check}" ] && echo "--check")
 [[ -n "${skip_lint}" ]] || \
 	capture \
 		poetry run \
-			sh -c "pylint ${flag_verbose} ${package_path} ${other_srcs} || poetry run pylint-exit -efail \${?} > /dev/null"
+			sh -c "pylint ${flag_verbose} ${package_path} ${other_srcs}"
 
 capture \
 	poetry run -- \

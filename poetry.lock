@@ -1180,18 +1180,6 @@ spelling = ["pyenchant (>=3.2,<4.0)"]
 testutils = ["gitpython (>3)"]
 
 [[package]]
-name = "pylint-exit"
-version = "1.2.0"
-description = "Exit code handler for pylint command line utility."
-optional = false
-python-versions = "*"
-groups = ["dev"]
-files = [
-    {file = "pylint-exit-1.2.0.zip", hash = "sha256:b6ad02884c01c5560a5275079fe5a6c792afff90ecccf0c02513e1547ee280b0"},
-    {file = "pylint_exit-1.2.0-py2.py3-none-any.whl", hash = "sha256:65c9e7856e9058705a92d7c45628d604b2a4b8ee2b3c18a7303be77f9ed87cbe"},
-]
-
-[[package]]
 name = "pyproject-api"
 version = "1.9.1"
 description = "API to interact with the python pyproject.toml based projects"
@@ -1572,4 +1560,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "a02464844e52680949035a889a3588c6c67fdf2fefadf775f4cb9d5a36d593c0"
+content-hash = "3a09840d81542caea84288aaa2ba701793eb17c39c1c3692904e7169f616e1c7"
