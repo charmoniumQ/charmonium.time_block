@@ -27,10 +27,8 @@
           nativeBuildInputs = [ python.pkgs.poetry-core ];
           propagatedBuildInputs = [ ];
           checkInputs = [
-            python.pkgs.bump2version
             python.pkgs.mypy
             python.pkgs.pytest
-            python.pkgs.tox
             python.pkgs.autoflake
             python.pkgs.isort
             python.pkgs.black
@@ -38,17 +36,28 @@
             python.pkgs.coverage
             python.pkgs.types-psutil
             python.pkgs.pytest-asyncio
-            python.pkgs.twine
           ];
           pythonImportsCheck = [ "charmonium.time_block" ];
           nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
         };
       in rec {
         packages = rec {
-          py310 = mkApp pkgs.python310;
           py311 = mkApp pkgs.python311;
           py312 = mkApp pkgs.python312;
           py313 = mkApp pkgs.python313;
+          py314 = mkApp pkgs.python314;
+        };
+        devShells = {
+          default = pkgs.mkShell {
+            packages = [
+              pkgs.ruff
+              (pkgs.python313.withPackages (
+                pypkgs: builtins.filter
+                  isPythonPackage
+                  (packages.py313.nativeBuildInputs ++ packages.py313.propagatedBuildInputs ++ (nativeCheckInputs pypkgs))
+              ))
+            ];
+          };
         };
       }
     );
