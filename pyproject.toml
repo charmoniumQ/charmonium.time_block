@@ -17,7 +17,7 @@ time_block = "charmonium.time_block._cli:main"
 python = "^3.12"
 humanize = "^4.15.0"
 psutil = "^7.0"
-wrapt = "^2.2.1"
+wrapt = "^1"
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.10.4"

@@ -112,7 +112,7 @@ is eating up all of RAM.
     ...
     >>> main()
     main: running
-    main: finished in now, leaked ...KiB
+    main: finished in now...
 
 ----
 TODO
