@@ -27,6 +27,7 @@
           pypkgs.pytest-asyncio
           pypkgs.pytestCheckHook
           pypkgs.types-psutil
+          pypkgs.twine
           pkgs.ruff
         ];
         mkApp = python: python.pkgs.buildPythonPackage {

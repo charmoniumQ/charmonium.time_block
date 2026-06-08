@@ -16,11 +16,13 @@ top-level blocks with human-readable strings makes the program's running times
 more understandable.
 
 Logging the start and end can also be useful for high-level macro-optimization.
-`line_prof`_ will measure every line, which comes with overhead and lots more
+`line_profiler`_ will measure every line, which comes with overhead and lots more
 data. Most lines are not the bottleneck, so this is just adding hay to the
-haystack and the performance overhead. `line_prof`_ is good for
+haystack and the performance overhead. `line_profiler`_ is good for
 micro-optimization when you already know where the bottleneck is; this package
 is good for learning what high-level operation is the bottleneck.
+
+.. _`line_profiler`: https://github.com/pyutils/line_profiler
 
 ----------
 Quickstart
@@ -119,29 +121,44 @@ TODO
 - Explain iter, iter no elements, and async variants
 - Describe workflow
 - Note on performance/coarseness
+
   - Have global disable
   - Have context disable?
+
 - Documentation explains two ways of getting the stats: event-based and batch
+
   - Print, structlog, logging, rich backends
+
     - Should be very easy to get a print; then ensure doctests work.
+
 - Integration with other profilers
 - There should be an easy integration with Typer/Click and with global/atexit
 - Persistence
+
   - Save at final frame
   - Use hash of frame func + module version + global version
+
 - Frames have optional data
+
   - Could have size vector
+
     - Could implement global progress bar
+
 - Show the active awaitables?
 - Can we do async_ctx? Probably not. If not, explain why in README
+
   - Should we be an async event loop? Probably not.
+
 - Use term scope timer in documentation
 - Differentiators: print, time async, time iters, includes memory
+
   - Similar projects:
+
     - https://pypi.org/project/tree-timer/
     - https://pypi.org/project/scope-timer/
     - cProfile
     - line_profiler
     - memory-profiler
     - https://github.com/dropbox/stopwatch
+
 - Plug in to existing profile visualizers. Make a flame graph.
