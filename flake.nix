@@ -18,27 +18,30 @@
     (
       system: let
         pkgs = import nixpkgs { inherit system; };
+        isPythonPackage = deriv: builtins.hasAttr "pythonPath" deriv;
         pyprojectToml = builtins.fromTOML (builtins.readFile ./pyproject.toml);
+        nativeCheckInputs = pypkgs: [
+          pypkgs.coverage
+          pypkgs.mypy
+          pypkgs.pytest
+          pypkgs.pytest-asyncio
+          pypkgs.pytestCheckHook
+          pypkgs.types-psutil
+          pkgs.ruff
+        ];
         mkApp = python: python.pkgs.buildPythonPackage {
           pname = pyprojectToml.tool.poetry.name;
           pyproject = true;
           version = pyprojectToml.tool.poetry.version;
           src = ./.;
           nativeBuildInputs = [ python.pkgs.poetry-core ];
-          propagatedBuildInputs = [ ];
-          checkInputs = [
-            python.pkgs.mypy
-            python.pkgs.pytest
-            python.pkgs.autoflake
-            python.pkgs.isort
-            python.pkgs.black
-            python.pkgs.pylint
-            python.pkgs.coverage
-            python.pkgs.types-psutil
-            python.pkgs.pytest-asyncio
+          propagatedBuildInputs = [
+            python.pkgs.humanize
+            python.pkgs.psutil
+            python.pkgs.wrapt
           ];
+          nativeCheckInputs = nativeCheckInputs python.pkgs;
           pythonImportsCheck = [ "charmonium.time_block" ];
-          nativeCheckInputs = [ python.pkgs.pytestCheckHook ];
         };
       in rec {
         packages = rec {
@@ -50,7 +53,6 @@
         devShells = {
           default = pkgs.mkShell {
             packages = [
-              pkgs.ruff
               (pkgs.python313.withPackages (
                 pypkgs: builtins.filter
                   isPythonPackage

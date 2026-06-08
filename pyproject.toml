@@ -14,17 +14,15 @@ packages = [
 time_block = "charmonium.time_block._cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.12"
+psutil = "^7.0"
+wrapt = "^2.2.1"
+humanize = "^4.15.0"
 
 [tool.poetry.group.dev.dependencies]
-bump2version = "^1.0.1"
 mypy = "^1.17.1"
 pytest = "^8.4.1"
 tox = "^4.28.4"
-autoflake = "^2.3.1"
-isort = "^6.0.1"
-black = "^25.1.0"
-pylint = "^3.3.8"
 coverage = "^7.10.4"
 types-psutil = "^7.0.0.20250801"
 pytest-asyncio = "^1.1.0"
@@ -50,7 +48,8 @@ commands =
 """
 
 [tool.pytest.ini_options]
-addopts = "--doctest-glob='*.rst'"
+addopts = "--doctest-glob='*.rst' -W error"
+asyncio_default_fixture_loop_scope = "session"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
