@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "charmonium.time_block"
-version = "0.4.0"
+version = "1.0.0"
 description = "Time a block of code."
 authors = ["Samuel Grayson <sam+dev@samgrayson.me>"]
 license = "MIT"
@@ -15,41 +15,24 @@ time_block = "charmonium.time_block._cli:main"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+humanize = "^4.15.0"
 psutil = "^7.0"
 wrapt = "^2.2.1"
-humanize = "^4.15.0"
 
 [tool.poetry.group.dev.dependencies]
+coverage = "^7.10.4"
 mypy = "^1.17.1"
 pytest = "^8.4.1"
-tox = "^4.28.4"
-coverage = "^7.10.4"
-types-psutil = "^7.0.0.20250801"
 pytest-asyncio = "^1.1.0"
+types-psutil = "^7.0.0.20250801"
 twine = "^6.1.0"
-
-[tool.tox]
-# According to tox docs
-# The tox configuration can also be in pyproject.toml (if you want to avoid an extra file).
-# Currently only the old format is supported via legacy_tox_ini, a native implementation is planned though.
-legacy_tox_ini = """
-[tox]
-envlist = py39,py310,py311,py312
-# See tool.poetry.dependencies.python
-isolated_build = True
-
-[testenv]
-deps = poetry
-setenv = MYPYPATH=stubs
-commands =
-  poetry install
-  mypy --namespace-packages -p charmonium.time_block
-  pytest --quiet --exitfirst
-"""
 
 [tool.pytest.ini_options]
 addopts = "--doctest-glob='*.rst' -W error"
 asyncio_default_fixture_loop_scope = "session"
+
+[[tool.bumpversion.file]]
+path = "pyproject.toml"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

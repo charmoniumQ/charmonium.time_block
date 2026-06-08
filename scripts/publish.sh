@@ -8,10 +8,13 @@ if [ "${1}" != "major" -a "${1}" != "minor" -a "${1}" != "patch" ]; then
 fi
 
 part="${1}"
-poetry run bump2version "${part}"
-
+poetry version major
+ruff check --fix .
+ruff format .
+dmypy run -- --strict --package charmonium.time_block
+python -m pytest
 poetry build
-poetry run twine check dist/*
+twine check dist/*
 if [ -z "${dry_run}" ]; then
 	poetry publish
 fi
