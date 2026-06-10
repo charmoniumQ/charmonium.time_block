@@ -520,7 +520,7 @@ class Timer:
     def decor(
         self,
         description: str | None = None,
-        key_func: typing.Callable[_Params, typing.Hashable] | None = None,
+        key_func: None = None,
         **extra: typing.Any,
     ) -> typing.Callable[
         [typing.Callable[_Params, _ReturnType]], typing.Callable[_Params, _ReturnType]
